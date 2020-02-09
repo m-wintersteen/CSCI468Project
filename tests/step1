@@ -1,0 +1,30 @@
+#!/bin/bash
+# diff output of step1 with expected outputs
+
+# Check fibonacci.out
+if [[ $(diff -b outputs/fibonacci.out <(python3 ../src/Part1.py ../tests/inputs/fibonacci.micro)) ]]; then
+    echo "fibonacci.out failed"
+else
+    echo "fibonacci.out success"
+fi
+
+# Check loop.out
+if [[ $(diff -b outputs/loop.out <(python3 ../src/Part1.py ../tests/inputs/loop.micro)) ]]; then
+    echo "loop.out failed"
+else
+    echo "loop.out success"
+fi
+
+# Check nested.out
+if [[ $(diff -b outputs/nested.out <(python3 ../src/Part1.py ../tests/inputs/nested.micro)) ]]; then
+    echo "nested.out failed"
+else
+    echo "nested.out success"
+fi
+
+# Check sqrt.out
+if [[ $(diff -b outputs/sqrt.out <(python3 ../src/Part1.py ../tests/inputs/sqrt.micro)) ]]; then
+    echo "sqrt.out failed"
+else
+    echo "sqrt.out success"
+fi
