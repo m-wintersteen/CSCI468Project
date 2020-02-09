@@ -6,5 +6,5 @@ OPERATOR : ':=' | '+' | '-' | '*' | '/' | '=' | '!=' | '<' | '>' | '(' | ')' | '
 INTLITERAL : [0-9]+ ;
 FLOATLITERAL: [0-9]*'.'[0-9]+ ;
 STRINGLITERAL: ('"'.*?'"') ;
-COMMENT: '--'.*?'\n' ;
-WS: [ \n\t\r]+ -> skip;
+COMMENT: '--'.*?'\n' -> skip ;
+WS: [ \n\t\r]+ -> skip ;
