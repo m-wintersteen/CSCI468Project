@@ -1,0 +1,9 @@
+# ANTLR Files
+*.tokens
+*.interp
+
+# Python Files
+__pycache__
+
+# Mac Files
+*.DS_Store
