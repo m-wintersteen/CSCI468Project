@@ -1,2 +1,9 @@
 #!/bin/bash
+
+# generate lexer file if it doesn't exist
+if [ ! -f "Little.py" ]; then
+    java -jar /usr/local/lib/antlr-4.8-complete.jar -Dlanguage=Python3 Little.g4
+fi
+
+# run our python script and pass arg1 as input
 python3 Part1.py $1
