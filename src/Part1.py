@@ -1,6 +1,6 @@
 import sys
 from antlr4 import *
-from antlr.Little import Little
+from Little import Little
  
 def main(argv):
     input_stream = FileStream(argv[1])
