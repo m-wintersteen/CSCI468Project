@@ -6,4 +6,4 @@ if [ ! -f "Little.py" ]; then
 fi
 
 # run our python script and pass arg1 as input
-python3 Part1.py $1
+python3 Main.py $1
