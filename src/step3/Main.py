@@ -2,6 +2,7 @@ import sys
 from antlr4 import *
 from LittleLexer import LittleLexer
 from LittleParser import LittleParser
+from SymbolTableListener import SymbolTableListener
 from antlr4.error.ErrorListener import ConsoleErrorListener
 
 def main(argv):
@@ -11,7 +12,10 @@ def main(argv):
     stream = CommonTokenStream(lexer)
     parser = LittleParser(stream)
     parser.removeErrorListener(ConsoleErrorListener.INSTANCE)
-    parser.program()
+    tree = parser.program()
+    listener = SymbolTableListener()
+    walker = ParseTreeWalker()
+    walker.walk(listener, tree)
 
  
 if __name__ == '__main__':
