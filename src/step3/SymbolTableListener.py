@@ -6,6 +6,7 @@ class SymbolTableListener(LittleListener):
 
     # initialize symbol table datastructure here
     def enterProgram(self, ctx:LittleParser.ProgramContext):
+        self.error = None
         self.symbolTable = {}
         self.previousScopes = []
         self.block = 0
@@ -14,14 +15,17 @@ class SymbolTableListener(LittleListener):
 
     # print symbol table entries here
     def exitProgram(self, ctx:LittleParser.ProgramContext):
-        for scope, table in self.symbolTable.items():
-            print(f'Symbol table {scope}')
-            for var, attr in table.items():
-                if (attr['value']):
-                    print(f'name {var} type {attr["type"]} value {attr["value"]}')
-                else:
-                    print(f'name {var} type {attr["type"]}')
-            print()
+        if self.error:
+            print(f'DECLARATION ERROR {self.error}')
+        else:
+            for scope, table in self.symbolTable.items():
+                print(f'Symbol table {scope}')
+                for var, attr in table.items():
+                    if (attr['value']):
+                        print(f'name {var} type {attr["type"]} value {attr["value"]}')
+                    else:
+                        print(f'name {var} type {attr["type"]}')
+                print()
 
 
     # Enter a parse tree produced by LittleParser#string_decl.
@@ -125,5 +129,9 @@ class SymbolTableListener(LittleListener):
         pass
 
     def addSymbol(self, var, t, val=None):
-        self.symbolTable[self.scope][var] = {'value':val,'type':t}
+        if not var in self.symbolTable[self.scope]:
+            self.symbolTable[self.scope][var] = {'value':val,'type':t}
+        else:
+            if not self.error:
+                self.error = var
         
