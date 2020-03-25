@@ -3,7 +3,7 @@
 # generate parser/scanner/listener files if they don't exist
 if ! { [ -f "LittleLexer.py" ] && [ -f "LittleListener.py" ] && [ -f "LittleParser.py" ]; }
 then
-    java -jar /usr/local/lib/antlr-4.8-complete.jar -Dlanguage=Python3 Little.g4
+    java org.antlr.v4.Tool -Dlanguage=Python3 Little.g4
 fi
 
 # run our python script and pass arg1 as input

@@ -2,7 +2,7 @@
 
 # generate lexer file if it doesn't exist
 if [ ! -f "LittleLexer.py" ]; then
-    antlr4 -Dlanguage=Python3 Little.g4
+    java org.antlr.v4.Tool -Dlanguage=Python3 Little.g4
 fi
 
 # run our python script and pass arg1 as input
