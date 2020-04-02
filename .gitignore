@@ -11,3 +11,6 @@ env/
 
 # Visual Studio Code Files
 *.code-workspace
+
+# Grading Files
+usertest/
