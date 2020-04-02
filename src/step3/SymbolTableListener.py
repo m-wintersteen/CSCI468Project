@@ -118,7 +118,7 @@ class SymbolTableListener(LittleListener):
 
     def enterBlock(self):
         self.block = self.block + 1
-        self.enterScope(f'BLOCK {self.block}')
+        self.enterScope('BLOCK {}'.format(self.block))
         pass
 
     def exitBlock(self):
