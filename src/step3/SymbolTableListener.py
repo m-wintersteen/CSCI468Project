@@ -1,3 +1,4 @@
+import collections
 from antlr4 import *
 from LittleListener import LittleListener
 from LittleParser import LittleParser
@@ -7,7 +8,7 @@ class SymbolTableListener(LittleListener):
     # initialize symbol table datastructure here
     def enterProgram(self, ctx:LittleParser.ProgramContext):
         self.error = None
-        self.symbolTable = {}
+        self.symbolTable = collections.OrderedDict()
         self.previousScopes = []
         self.block = 0
         self.recordVars = False
@@ -111,7 +112,7 @@ class SymbolTableListener(LittleListener):
         if hasattr(self, 'scope'):
             self.previousScopes.append(self.scope)
         self.scope = scope;
-        self.symbolTable[self.scope] = {}
+        self.symbolTable[self.scope] = collections.OrderedDict()
 
     def exitScope(self):
         self.scope = self.previousScopes.pop()
