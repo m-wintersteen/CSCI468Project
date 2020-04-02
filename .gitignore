@@ -4,6 +4,7 @@
 
 # Python Files
 __pycache__
+env/
 
 # Mac Files
 *.DS_Store
