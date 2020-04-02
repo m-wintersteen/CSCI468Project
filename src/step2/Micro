@@ -1,9 +1,14 @@
 #!/bin/bash
 
-# generate lexer file if it doesn't exist
-if [ ! -f "LittleLexer.py" ]; then
-    java org.antlr.v4.Tool -Dlanguage=Python3 Little.g4
+# setup python3 environment if not active
+if [ ! -d "env" ]; then
+    # create the virtual environment
+    python3 -m venv env
+    # install antlr4-python3-runtime
+    env/bin/pip3 install antlr4-python3-runtime
+    # generate parser/scanner/listener files
+    java -jar /usr/local/lib/antlr-4.8-complete.jar -Dlanguage=Python3 Little.g4
 fi
 
 # run our python script and pass arg1 as input
-python3 Main.py $1
+env/bin/python3 Main.py $1
