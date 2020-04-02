@@ -16,15 +16,15 @@ class SymbolTableListener(LittleListener):
     # print symbol table entries here
     def exitProgram(self, ctx:LittleParser.ProgramContext):
         if self.error:
-            print(f'DECLARATION ERROR {self.error}')
+            print('DECLARATION ERROR {}'.format(self.error))
         else:
             for scope, table in self.symbolTable.items():
-                print(f'Symbol table {scope}')
+                print('Symbol table {}'.format(scope))
                 for var, attr in table.items():
                     if (attr['value']):
-                        print(f'name {var} type {attr["type"]} value {attr["value"]}')
+                        print('name {} type {} value {}'.format(var, attr['type'], attr['value']))
                     else:
-                        print(f'name {var} type {attr["type"]}')
+                        print('name {} type {}'.format(var, attr['type']))
                 print()
 
 
@@ -108,16 +108,13 @@ class SymbolTableListener(LittleListener):
     # UTILITY FUNCTIONS FOR SCOPES AND SYMBOL TABLES
 
     def enterScope(self, scope):
-        # print(f'entering scope {scope}')
         if hasattr(self, 'scope'):
             self.previousScopes.append(self.scope)
         self.scope = scope;
         self.symbolTable[self.scope] = {}
 
     def exitScope(self):
-        # print(f'leaving scope {self.scope}')
         self.scope = self.previousScopes.pop()
-        # print(f'entering scope {self.scope}')
 
     def enterBlock(self):
         self.block = self.block + 1
