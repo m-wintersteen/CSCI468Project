@@ -1,11 +1,10 @@
 #!/bin/bash
 
 # detect if the venv is active
-INVENV=$(python3 -c 'import sys; print("1" if hasattr(sys, "real_prefix") else "0")')
+INVENV=$(python3 -c 'import sys; print("0" if hasattr(sys, "real_prefix") else "1")')
 
 # setup python3 environment if not active
-if [ ! $INVENV ]
-then
+if (( $INVENV )); then
     # create and activate venv
     python3 -m venv env
     source env/bin/activate
