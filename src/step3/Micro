@@ -1,8 +1,17 @@
 #!/bin/bash
 
-# generate parser/scanner/listener files if they don't exist
-if ! { [ -f "LittleLexer.py" ] && [ -f "LittleListener.py" ] && [ -f "LittleParser.py" ]; }
+# detect if the venv is active
+INVENV = $(python3 -c 'import sys; print("1" if hasattr(sys, "real_prefix") else "0")')
+
+# setup python3 environment if not active
+if [ ! $INVENV ]
 then
+    # create and activate venv
+    python3 -m venv env
+    source env/bin/activate
+    # install antlr4-python3-runtime
+    pip3 install antlr4-python3-runtime
+    # generate parser/scanner/listener files
     java org.antlr.v4.Tool -Dlanguage=Python3 Little.g4
 fi
 
