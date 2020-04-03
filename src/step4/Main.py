@@ -2,7 +2,7 @@ import sys
 from antlr4 import *
 from LittleLexer import LittleLexer
 from LittleParser import LittleParser
-from SymbolTableListener import SymbolTableListener
+from CustomVisitor import CustomVisitor
 from antlr4.error.ErrorListener import ConsoleErrorListener
 
 def main(argv):
@@ -13,9 +13,8 @@ def main(argv):
     parser = LittleParser(stream)
     parser.removeErrorListener(ConsoleErrorListener.INSTANCE)
     tree = parser.program()
-    listener = SymbolTableListener()
-    walker = ParseTreeWalker()
-    walker.walk(listener, tree)
+    visitor = CustomVisitor()
+    visitor.visit(tree)
 
  
 if __name__ == '__main__':
