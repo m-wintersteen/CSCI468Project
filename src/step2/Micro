@@ -5,7 +5,7 @@ if [ ! -d "env" ]; then
     # create the virtual environment
     python3 -m venv env
     # install antlr4-python3-runtime
-    env/bin/pip3 install antlr4-python3-runtime
+    env/bin/pip3 install antlr4-python3-runtime -q
     # generate parser/scanner/listener files
     java org.antlr.v4.Tool -Dlanguage=Python3 Little.g4
 fi
