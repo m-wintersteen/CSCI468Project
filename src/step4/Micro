@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# setup python3 environment if not active
+if [ ! -d "env" ]; then
+    # create the virtual environment
+    python3 -m venv env
+    # install antlr4-python3-runtime
+    env/bin/pip3 install antlr4-python3-runtime
+    # generate parser/scanner/listener files
+    java org.antlr.v4.Tool -Dlanguage=Python3 Little.g4
+fi
+
+# run our python script and pass arg1 as input
+env/bin/python3 Main.py $1
