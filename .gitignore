@@ -3,7 +3,6 @@ Little.py
 LittleLexer.py
 LittleListener.py
 LittleParser.py
-
 *.tokens
 *.interp
 
