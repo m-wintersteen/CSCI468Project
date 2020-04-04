@@ -3,7 +3,7 @@ from antlr4 import *
 from LittleParser import LittleParser
 from LittleVisitor import LittleVisitor
 
-class CustomVisitor(LittleVisitor):
+class SymbolTableVisitor(LittleVisitor):
 
     # Visit a parse tree produced by LittleParser#program.
     def visitProgram(self, ctx:LittleParser.ProgramContext):
@@ -16,17 +16,17 @@ class CustomVisitor(LittleVisitor):
         # visit children
         self.visitChildren(ctx)
         # finalization step
-        if self.error:
-            print('DECLARATION ERROR {}'.format(self.error))
-        else:
-            for scope, table in self.symbolTable.items():
-                print('Symbol table {}'.format(scope))
-                for var, attr in table.items():
-                    if (attr['value']):
-                        print('name {} type {} value {}'.format(var, attr['type'], attr['value']))
-                    else:
-                        print('name {} type {}'.format(var, attr['type']))
-                print()
+        # if self.error:
+        #     print('DECLARATION ERROR {}'.format(self.error))
+        # else:
+        #     for scope, table in self.symbolTable.items():
+        #         print('Symbol table {}'.format(scope))
+        #         for var, attr in table.items():
+        #             if (attr['value']):
+        #                 print('name {} type {} value {}'.format(var, attr['type'], attr['value']))
+        #             else:
+        #                 print('name {} type {}'.format(var, attr['type']))
+        #         print()
         return
 
 
