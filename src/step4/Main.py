@@ -3,6 +3,7 @@ from antlr4 import *
 from LittleLexer import LittleLexer
 from LittleParser import LittleParser
 from AbstractSyntaxTreeVisitor import AbstractSyntaxTreeVisitor
+from SymbolTableVisitor import SymbolTableVisitor
 from antlr4.error.ErrorListener import ConsoleErrorListener
 
 def main(argv):
@@ -13,7 +14,9 @@ def main(argv):
     parser = LittleParser(stream)
     parser.removeErrorListener(ConsoleErrorListener.INSTANCE)
     tree = parser.program()
-    visitor = AbstractSyntaxTreeVisitor()
+    visitor = SymbolTableVisitor()
+    visitor.visit(tree)
+    visitor = AbstractSyntaxTreeVisitor(visitor.symbolTable['GLOBAL'])
     visitor.visit(tree)
 
  
