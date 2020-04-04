@@ -36,20 +36,20 @@ class AssignmentNode(AbstractSyntaxTreeNode):
             instruction = 'STOREI'
         if isinstance(self.right, LiteralNode):
             temp = getTemp()
-            code.append(';{} {} {}'.format(instruction, self.right.temp, temp))
-            code.append(';{} {} {}'.format(instruction, temp, self.left.temp))
+            code.append('{} {} {}'.format(instruction, self.right.temp, temp))
+            code.append('{} {} {}'.format(instruction, temp, self.left.temp))
         else:
-            code.append(';{} {} {}'.format(instruction, self.right.temp, self.left.temp))
+            code.append('{} {} {}'.format(instruction, self.right.temp, self.left.temp))
         return code
 
 
 class IdentifierNode(AbstractSyntaxTreeNode):
     
-    def __init__(self, temp):
+    def __init__(self, temp, varType):
         super().__init__()
         self.temp = temp
+        self.varType = varType
         self.type = L_VALUE
-        self.varType = 'INT'
 
     def generateCode(self):
         return []
@@ -67,43 +67,67 @@ class OperatorNode(AbstractSyntaxTreeNode):
         self.temp = getTemp()
         instruction = None
         if self.operator == '+':
-            instruction = 'ADDI'
+            instruction = 'ADD'
         elif self.operator == '-':
-            instruction = 'SUBI'
+            instruction = 'SUB'
         elif self.operator == '*':
-            instruction = 'MULTI'
+            instruction = 'MULT'
         elif self.operator == '/':
-            instruction = 'DIVI'
+            instruction = 'DIV'
         templ = self.left.temp
         tempr = self.right.temp
         if isinstance(self.left, LiteralNode):
             templ = getTemp()
-            code.append(';STOREI {} {}'.format(self.left.temp, templ))
+            if self.left.varType == 'INT':
+                code.append('STOREI {} {}'.format(self.left.temp, templ))
+            else:
+                code.append('STOREF {} {}'.format(self.left.temp, templ))
         if isinstance(self.right, LiteralNode):
             tempr = getTemp()
-            code.append(';STOREI {} {}'.format(self.right.temp, tempr))
-        code.append(';{} {} {} {}'.format(instruction, templ, tempr, self.temp))
+            if self.right.varType == 'INT':
+                code.append('STOREI {} {}'.format(self.right.temp, tempr))
+            else:
+                code.append('STOREF {} {}'.format(self.right.temp, tempr))
+        if self.left.varType == 'INT' and self.right.varType == 'INT':
+            instruction = instruction + 'I'
+            self.varType = 'INT'
+        else:
+            instruction = instruction + 'F'
+            self.varType = 'FLOAT'
+        code.append('{} {} {} {}'.format(instruction, templ, tempr, self.temp))
         return code
 
 
 class LiteralNode(AbstractSyntaxTreeNode):
 
-    def __init__(self, temp):
+    def __init__(self, temp, varType):
         super().__init__()
         self.temp = temp
+        self.varType = varType
         self.type = R_VALUE
-        self.varType = 'INT'
 
     def generateCode(self):
         return []
 
 
-class WriteNode(AbstractSyntaxTreeNode):
+class ReadNode(AbstractSyntaxTreeNode):
+
     def __init__(self):
         super().__init__()
         self.type = None
 
     def generateCode(self):
-        instruction = 'WRITE' + 'I' if self.left.varType == 'INT' else 'F'
+        instruction = 'READI' if self.left.varType == 'INT' else 'READF'
+        return ['{} {}'.format(instruction, self.left.temp)]
+        
+
+class WriteNode(AbstractSyntaxTreeNode):
+
+    def __init__(self):
+        super().__init__()
+        self.type = None
+
+    def generateCode(self):
+        instruction = 'WRITEI' if self.left.varType == 'INT' else 'WRITEF' if self.left.varType == 'FLOAT' else 'WRITES'
         return ['{} {}'.format(instruction, self.left.temp)]
 
