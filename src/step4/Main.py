@@ -2,7 +2,7 @@ import sys
 from antlr4 import *
 from LittleLexer import LittleLexer
 from LittleParser import LittleParser
-from CustomVisitor import CustomVisitor
+from AbstractSyntaxTreeVisitor import AbstractSyntaxTreeVisitor
 from antlr4.error.ErrorListener import ConsoleErrorListener
 
 def main(argv):
@@ -13,7 +13,7 @@ def main(argv):
     parser = LittleParser(stream)
     parser.removeErrorListener(ConsoleErrorListener.INSTANCE)
     tree = parser.program()
-    visitor = CustomVisitor()
+    visitor = AbstractSyntaxTreeVisitor()
     visitor.visit(tree)
 
  
