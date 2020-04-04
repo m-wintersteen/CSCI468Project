@@ -2,18 +2,27 @@ import collections
 from antlr4 import *
 from LittleParser import LittleParser
 from LittleVisitor import LittleVisitor
-from AbstractSyntaxTreeNode import AssignmentNode, IdentifierNode, LiteralNode, OperatorNode, WriteNode
+from AbstractSyntaxTreeNode import AssignmentNode, IdentifierNode, LiteralNode, OperatorNode, ReadNode, WriteNode
+from Translator import Translator
 
 class AbstractSyntaxTreeVisitor(LittleVisitor):
 
+    def __init__(self, symbolTable):
+        super().__init__()
+        self.symbolTable = symbolTable
+
+
     # Visit a parse tree produced by LittleParser#program.
     def visitProgram(self, ctx:LittleParser.ProgramContext):
+        self.code = []
         self.tree = []
         self.visitChildren(ctx)
         for tree in self.tree:
-            code = tree.generateCode()
-            for line in code:
-                print(line)
+            self.code = self.code + tree.generateCode()
+        for line in self.code:
+            print(line)
+        # translator = Translator()
+        # translator.translate(self.code, self.symbolTable)
         return
 
     # SEMANTIC ACTIONS FOR AST
@@ -31,7 +40,9 @@ class AbstractSyntaxTreeVisitor(LittleVisitor):
 
     # Visit a parse tree produced by LittleParser#id.
     def visitId(self, ctx:LittleParser.IdContext):
-        return IdentifierNode(ctx.getText(), )
+        id = ctx.getText()
+        type = self.symbolTable[id]['type'] if id in self.symbolTable else None
+        return IdentifierNode(id, type)
 
 
     # Visit a parse tree produced by LittleParser#expr.
@@ -108,7 +119,9 @@ class AbstractSyntaxTreeVisitor(LittleVisitor):
         elif ctx.id() != None:
             return self.visit(ctx.id())
         else:
-            return LiteralNode(ctx.getText())
+            val = ctx.getText()
+            type = 'FLOAT' if '.' in val else 'INT'
+            return LiteralNode(val, type)
 
 
     # Visit a parse tree produced by LittleParser#call_expr.
@@ -135,6 +148,16 @@ class AbstractSyntaxTreeVisitor(LittleVisitor):
             self.tree.append(write)
         return
 
+    
+    # Visit a parse tree produced by LittleParser#read_stmt.
+    def visitRead_stmt(self, ctx:LittleParser.Read_stmtContext):
+        ids = self.visit(ctx.id_list())
+        for id in ids:
+            read = ReadNode()
+            read.left = id
+            self.tree.append(read)
+        return
+
 
     # Visit a parse tree produced by LittleParser#id_list.
     def visitId_list(self, ctx:LittleParser.Id_listContext):
@@ -154,7 +177,7 @@ class AbstractSyntaxTreeVisitor(LittleVisitor):
 
     # Visit a parse tree produced by LittleParser#str.
     def visitStr(self, ctx:LittleParser.StrContext):
-        return LiteralNode(ctx.getText())
+        return LiteralNode(ctx.getText(), 'STRING')
 
 
 
