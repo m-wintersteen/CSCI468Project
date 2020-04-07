@@ -1,35 +1,37 @@
 # CSCI468Project
 Compiler project for CSCI 468
 
-## Step 0: ANTLR Setup
+## Prerequisites
 
-We followed the guide at https://github.com/antlr/antlr4/blob/master/doc/getting-started.md to install ANTLR v4 and test the provided example. We are chosing to use Python3 for this project so the commands to generate the scanner and parser are slightly different:  `antlr4 -Dlanguage=Python3 Hello.g4`. To run the Driver code in the example, you must also install the Antlr v4 runtime from https://pypi.org/project/antlr4-python3-runtime. This can be done by running `pip3 install -r requirements.txt`. Example python driver code is taken from http://blog.anvard.org/articles/2016/03/15/antlr-python.html.
-
-## Step 1: Scanner
-
-### Description
-
-In step 1, we define the tokens for the language in a grammar file and use ANTLR v4 to generate the Python3 code for the scanner. We then use the scanner code to output the type and value of each token for a given source file. To run the scanner program, run the following command from the src/step1 directory `python3 Main.py <sourcefile>`, and replace \<sourcefile> with the path to the source code to tokenize.
-
-### Prerequisites
-
-- The ANTLR v4 jar file must be downloaded and added to the classpath
+### ANTLR v4
+The ANTLR v4 jar file must be downloaded and included in the java classpath. An example for doing so on Linux/MacOS is provided below.
 ```
 cd /usr/local/lib
 sudo curl -O https://www.antlr.org/download/antlr-4.8-complete.jar
-export CLASSPATH=".:/usr/local/lib/antlr-4.8-complete.jar:$CLASSPATH"
-alias antlr4='java -jar /usr/local/lib/antlr-4.8-complete.jar'
-alias grun='java org.antlr.v4.gui.TestRig'
+sudo vi ~/.bash_profile
 ```
-- Python3 must also be installed along with the libraries found in requirements.txt
+Add the following line to your bash profile.
 ```
-pip3 install -r requirements.txt
+export CLASSPATH="/usr/local/lib/antlr-4.8-complete.jar:{$CLASSPATH}"
+```
+Then reload your bash profile.
+```
+source ~/.bash_profile
 ```
 
-### Running
+### Python 3.4.10 or newer
+The grading machines have Python 3.4.10 installed, so all of our code is compatible with this version. Instructions for downloading Python can be found [here](https://www.python.org/downloads/).
 
+### Additional Notes
+The venv package used in the micro scripts requires that there be no spaces in the path to the project folder.
+
+## Micro Files
+The micro files check for the presence of an env directory. If it does not exist, a new virtual environment is created using venv, the antlr4-python3-runtime package is installed in the environment, and the ANTLR code is generated for the grammar. This is why you must delete the env folder if you wish to regenerate the ANTLR code. Then, the script runs our Main.py file. To run the Micro file, use the command below.
 ```
-cd src
-python3 Part1.py <sourcefile>
+./Micro <args>
+```
+If you want ANTLR to regenerate the python files, you will need to delete the env folder before running the Micro file again.
+```
+rm -rf env
 ```
 
