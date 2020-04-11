@@ -1,9 +1,10 @@
 import sys
 from antlr4 import *
+from antlr4.error.ErrorListener import ConsoleErrorListener
 from LittleLexer import LittleLexer
 from LittleParser import LittleParser
-from AbstractSyntaxTreeVisitor import AbstractSyntaxTreeVisitor
-from antlr4.error.ErrorListener import ConsoleErrorListener
+from Visitor import Visitor
+
 
 def main(argv):
     input_stream = FileStream(argv[1])
@@ -13,7 +14,7 @@ def main(argv):
     parser = LittleParser(stream)
     parser.removeErrorListener(ConsoleErrorListener.INSTANCE)
     tree = parser.program()
-    visitor = AbstractSyntaxTreeVisitor()
+    visitor = Visitor()
     visitor.visit(tree)
 
  
