@@ -7,42 +7,42 @@ from Translator import Translator
 
 class AbstractSyntaxTreeVisitor(LittleVisitor):
 
-    def __init__(self, symbolTable):
-        super().__init__()
-        self.symbolTable = symbolTable
-
-
     # Visit a parse tree produced by LittleParser#program.
     def visitProgram(self, ctx:LittleParser.ProgramContext):
-        self.code = []
+        # setup symbol table
+        self.error = None
+        self.symbolTable = collections.deque()
+        self.enterScope()
+        # setup abstract syntax tree
         self.tree = []
+        # traverse parse tree
         self.visitChildren(ctx)
+        ir = []
         for tree in self.tree:
-            self.code = self.code + tree.generateCode()
-        for line in self.code:
+            ir = ir + tree.generateCode()
+        for line in ir:
             print(';' + line)
         translator = Translator()
-        translator.translate(self.code, self.symbolTable)
+        tiny = translator.translate(ir, self.symbolTable[0])
+        for line in tiny:
+            print(line)
+        self.exitScope()
         return
+
 
     # SEMANTIC ACTIONS FOR AST
 
     # Visit a parse tree produced by LittleParser#assign_expr.
     def visitAssign_expr(self, ctx:LittleParser.Assign_exprContext):
-        left = self.visit(ctx.id())
+        id = self.visit(ctx.id())
+        symbol = self.getSymbol(id)
+        left = IdentifierNode(id, symbol['type'])
         right = self.visit(ctx.expr())
         node = AssignmentNode()
         node.left = left
         node.right = right
         self.tree.append(node)
         return
-
-
-    # Visit a parse tree produced by LittleParser#id.
-    def visitId(self, ctx:LittleParser.IdContext):
-        id = ctx.getText()
-        type = self.symbolTable[id]['type'] if id in self.symbolTable else None
-        return IdentifierNode(id, type)
 
 
     # Visit a parse tree produced by LittleParser#expr.
@@ -82,11 +82,6 @@ class AbstractSyntaxTreeVisitor(LittleVisitor):
             return mulop
 
 
-    # Visit a parse tree produced by LittleParser#addop.
-    def visitAddop(self, ctx:LittleParser.AddopContext):
-        return OperatorNode(ctx.getText())
-
-
     # Visit a parse tree produced by LittleParser#factor_prefix.
     def visitFactor_prefix(self, ctx:LittleParser.Factor_prefixContext):
         if ctx.factor_prefix() == None:
@@ -110,17 +105,14 @@ class AbstractSyntaxTreeVisitor(LittleVisitor):
             return self.visit(ctx.call_expr())
 
 
-    # Visit a parse tree produced by LittleParser#mulop.
-    def visitMulop(self, ctx:LittleParser.MulopContext):
-        return OperatorNode(ctx.getText())
-
-
     # Visit a parse tree produced by LittleParser#primary.
     def visitPrimary(self, ctx:LittleParser.PrimaryContext):
         if ctx.expr() != None:
             return self.visit(ctx.expr())
         elif ctx.id() != None:
-            return self.visit(ctx.id())
+            id = self.visit(ctx.id())
+            symbol = self.getSymbol(id)
+            return IdentifierNode(id, symbol['type'])
         else:
             val = ctx.getText()
             type = 'FLOAT' if '.' in val else 'INT'
@@ -142,12 +134,23 @@ class AbstractSyntaxTreeVisitor(LittleVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by LittleParser#addop.
+    def visitAddop(self, ctx:LittleParser.AddopContext):
+        return OperatorNode(ctx.getText())
+
+
+    # Visit a parse tree produced by LittleParser#mulop.
+    def visitMulop(self, ctx:LittleParser.MulopContext):
+        return OperatorNode(ctx.getText())
+
+
     # Visit a parse tree produced by LittleParser#write_stmt.
     def visitWrite_stmt(self, ctx:LittleParser.Write_stmtContext):
         ids = self.visit(ctx.id_list())
         for id in ids:
+            type = self.getSymbol(id)['type']
             write = WriteNode()
-            write.left = id
+            write.left = IdentifierNode(id, type)
             self.tree.append(write)
         return
 
@@ -156,10 +159,103 @@ class AbstractSyntaxTreeVisitor(LittleVisitor):
     def visitRead_stmt(self, ctx:LittleParser.Read_stmtContext):
         ids = self.visit(ctx.id_list())
         for id in ids:
+            type = self.getSymbol(id)['type']
             read = ReadNode()
-            read.left = id
+            read.left = IdentifierNode(id, type)
             self.tree.append(read)
         return
+
+
+    # SEMANTIC ACTIONS FOR SYMBOL TABLE
+
+    # Visit a parse tree produced by LittleParser#string_decl.
+    def visitString_decl(self, ctx:LittleParser.String_declContext):
+        id = self.visit(ctx.id())
+        val = self.visit(ctx.str())
+        self.addSymbol(id, 'STRING', val)
+        return
+
+
+    # Visit a parse tree produced by LittleParser#var_decl.
+    def visitVar_decl(self, ctx:LittleParser.Var_declContext):
+        typ = self.visit(ctx.var_type())
+        ids = self.visit(ctx.id_list())
+        for id in ids:
+            self.addSymbol(id, typ)
+        return
+
+
+    # Visit a parse tree produced by LittleParser#func_decl.
+    def visitFunc_decl(self, ctx:LittleParser.Func_declContext):
+        self.enterScope()
+        id = self.visit(ctx.id())
+        decls = self.visit(ctx.param_decl_list())
+        for (id, typ) in decls:
+            self.addSymbol(id, typ)
+        self.visit(ctx.func_body())
+        self.exitScope()
+        return
+
+
+    # Visit a parse tree produced by LittleParser#param_decl_list.
+    def visitParam_decl_list(self, ctx:LittleParser.Param_decl_listContext):
+        if ctx.param_decl() == None:
+            return []
+        decl = self.visit(ctx.param_decl())
+        return [decl, *self.visit(ctx.param_decl_tail())]
+
+
+    # Visit a parse tree produced by LittleParser#param_decl.
+    def visitParam_decl(self, ctx:LittleParser.Param_declContext):
+        typ = self.visit(ctx.var_type())
+        id = self.visit(ctx.id())
+        return (id, typ)
+
+
+    # Visit a parse tree produced by LittleParser#param_decl_tail.
+    def visitParam_decl_tail(self, ctx:LittleParser.Param_decl_tailContext):
+        if ctx.param_decl() == None:
+            return []
+        decl = self.visit(ctx.param_decl())
+        return [decl, *self.visit(ctx.param_decl_tail())]
+    
+
+    # Visit a parse tree produced by LittleParser#if_stmt.
+    def visitIf_stmt(self, ctx:LittleParser.If_stmtContext):
+        self.enterScope()
+        self.visitChildren(ctx)
+        self.exitScope()
+        return
+
+
+    # Visit a parse tree produced by LittleParser#else_part.
+    def visitElse_part(self, ctx:LittleParser.Else_partContext):
+        if ctx.decl() == None:
+            return
+        self.enterScope()
+        self.visitChildren(ctx)
+        self.exitScope()
+        return
+
+
+    # Visit a parse tree produced by LittleParser#while_stmt.
+    def visitWhile_stmt(self, ctx:LittleParser.While_stmtContext):
+        self.enterScope()
+        self.visitChildren(ctx)
+        self.exitScope()
+        return
+
+
+    # RETURN TOKEN TEXT OR LIST OF TOKEN TEXT
+
+    # Visit a parse tree produced by LittleParser#var_type.
+    def visitVar_type(self, ctx:LittleParser.Var_typeContext):
+        return ctx.getText()
+
+
+    # Visit a parse tree produced by LittleParser#id.
+    def visitId(self, ctx:LittleParser.IdContext):
+        return ctx.getText()
 
 
     # Visit a parse tree produced by LittleParser#id_list.
@@ -180,14 +276,33 @@ class AbstractSyntaxTreeVisitor(LittleVisitor):
 
     # Visit a parse tree produced by LittleParser#str.
     def visitStr(self, ctx:LittleParser.StrContext):
-        return LiteralNode(ctx.getText(), 'STRING')
+        return ctx.getText()
+
+    
+     # UTILITY FUNCTIONS FOR SYMBOL TABLES
+
+    # enter a new scope
+    def enterScope(self):
+        self.symbolTable.appendleft(collections.OrderedDict())
 
 
+    # leave the current scope
+    def exitScope(self):
+        self.symbolTable.popleft()
 
-    # AST UTILITY FUNCTIONS
-    def printTree(self, node):
-        print('Node[label:{},text:{}]'.format(node.label, node.text))
-        if node.left != None:
-            self.printTree(node.left)
-        if node.right != None:
-            self.printTree(node.right)
+
+    # add a symbol to the table for the current scope
+    def addSymbol(self, id, type, val=None):
+        if not id in self.symbolTable[0]:
+            self.symbolTable[0][id] = {'value':val,'type':type}
+        else:
+            if not self.error:
+                self.error = id
+
+
+    # lookup a symbol in the current scope and parent scopes
+    def getSymbol(self, id):
+        for symbolTable in self.symbolTable:
+            if id in symbolTable:
+                return symbolTable[id]
+        return None
