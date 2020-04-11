@@ -5,7 +5,7 @@ from LittleVisitor import LittleVisitor
 from AbstractSyntaxTreeNode import AssignmentNode, IdentifierNode, LiteralNode, OperatorNode, ReadNode, WriteNode
 from Translator import Translator
 
-class AbstractSyntaxTreeVisitor(LittleVisitor):
+class Visitor(LittleVisitor):
 
     # Visit a parse tree produced by LittleParser#program.
     def visitProgram(self, ctx:LittleParser.ProgramContext):
