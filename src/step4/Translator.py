@@ -37,5 +37,4 @@ class Translator:
                 assembly.append('sys {} {}'.format(instr.lower().replace('f', 'r'), args[0]))
         assembly.append('sys halt')
 
-        for line in assembly:
-            print(line)
+        return assembly
