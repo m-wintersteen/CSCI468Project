@@ -20,9 +20,9 @@ class AbstractSyntaxTreeVisitor(LittleVisitor):
         for tree in self.tree:
             self.code = self.code + tree.generateCode()
         for line in self.code:
-            print(line)
-        # translator = Translator()
-        # translator.translate(self.code, self.symbolTable)
+            print(';' + line)
+        translator = Translator()
+        translator.translate(self.code, self.symbolTable)
         return
 
     # SEMANTIC ACTIONS FOR AST
@@ -104,7 +104,10 @@ class AbstractSyntaxTreeVisitor(LittleVisitor):
 
     # Visit a parse tree produced by LittleParser#postfix_expr.
     def visitPostfix_expr(self, ctx:LittleParser.Postfix_exprContext):
-        return self.visitChildren(ctx)
+        if ctx.primary() != None:
+            return self.visit(ctx.primary())
+        else:
+            return self.visit(ctx.call_expr())
 
 
     # Visit a parse tree produced by LittleParser#mulop.
