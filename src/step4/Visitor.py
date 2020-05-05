@@ -203,7 +203,7 @@ class Visitor(LittleVisitor):
             return []
         decl = self.visit(ctx.param_decl())
         tail = self.visit(ctx.param_decl_tail())
-        return [decl, *tail]
+        return [decl] + tail
 
 
     # Visit a parse tree produced by LittleParser#param_decl.
@@ -219,7 +219,7 @@ class Visitor(LittleVisitor):
             return []
         decl = self.visit(ctx.param_decl())
         tail = self.visit(ctx.param_decl_tail())
-        return [decl, *tail]
+        return [decl] + tail
     
 
     # Visit a parse tree produced by LittleParser#if_stmt.
@@ -264,7 +264,7 @@ class Visitor(LittleVisitor):
     def visitId_list(self, ctx:LittleParser.Id_listContext):
         id = self.visit(ctx.id())
         tail = self.visit(ctx.id_tail())
-        return [id, *tail]
+        return [id] + tail
 
 
     # Visit a parse tree produced by LittleParser#id_tail.
@@ -273,7 +273,7 @@ class Visitor(LittleVisitor):
             return []
         id = self.visit(ctx.id())
         tail = self.visit(ctx.id_tail())
-        return [id, *tail]
+        return [id] + tail
 
 
     # Visit a parse tree produced by LittleParser#str.
