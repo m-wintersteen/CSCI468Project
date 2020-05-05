@@ -202,7 +202,8 @@ class Visitor(LittleVisitor):
         if ctx.param_decl() == None:
             return []
         decl = self.visit(ctx.param_decl())
-        return [decl, *self.visit(ctx.param_decl_tail())]
+        tail = self.visit(ctx.param_decl_tail())
+        return [decl, *tail]
 
 
     # Visit a parse tree produced by LittleParser#param_decl.
@@ -217,7 +218,8 @@ class Visitor(LittleVisitor):
         if ctx.param_decl() == None:
             return []
         decl = self.visit(ctx.param_decl())
-        return [decl, *self.visit(ctx.param_decl_tail())]
+        tail = self.visit(ctx.param_decl_tail())
+        return [decl, *tail]
     
 
     # Visit a parse tree produced by LittleParser#if_stmt.
